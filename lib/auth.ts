@@ -25,7 +25,8 @@ export const verifyToken = async (req: NextRequest): Promise<JwtPayload | null> 
     if (!user) return null;
 
     return decoded;
-  } catch {
+  } catch (error) {
+    console.error('verifyToken error:', error); // ← tambah ini
     return null;
   }
 };

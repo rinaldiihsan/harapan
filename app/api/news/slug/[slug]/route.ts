@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: { news_title: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Record<string, string> }) {
   try {
-    const news = await prisma.news.findFirst({
-      where: {
-        news_title: decodeURIComponent(params.news_title),
-      },
+    const news = await prisma.news.findUnique({
+      where: { news_slug: params.slug },
     });
 
     if (!news) {

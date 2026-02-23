@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Yayasan Pendidikan Harapan',
@@ -14,7 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        {children}
+        <Toaster richColors position="top-right" />
+      </body>
     </html>
   );
 }

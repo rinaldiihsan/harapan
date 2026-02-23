@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
+import { generateSlug } from '@/lib/slug';
 
 // GET all news — public
 export async function GET() {
@@ -36,12 +37,24 @@ async function createHandler(req: NextRequest) {
       return NextResponse.json({ message: 'Maximum 5 images allowed' }, { status: 400 });
     }
 
-    // Upload semua gambar ke Cloudinary
+    // Generate slug dari judul
+    let slug = generateSlug(news_title);
+
+    // Pastikan slug unik — kalau sudah ada tambahkan angka di belakang
+    const existing = await prisma.news.findUnique({ where: { news_slug: slug } });
+    if (existing) {
+      const count = await prisma.news.count({
+        where: { news_slug: { startsWith: slug } },
+      });
+      slug = `${slug}-${count + 1}`;
+    }
+
     const imageUrls = await Promise.all(imageFiles.map((file) => uploadToCloudinary(file.buffer, 'news', file.filename)));
 
     const news = await prisma.news.create({
       data: {
         news_title,
+        news_slug: slug,
         news_content,
         news_images: imageUrls,
       },

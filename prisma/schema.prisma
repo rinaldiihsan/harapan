@@ -39,6 +39,7 @@ model Carousel {
 model News {
   id           Int      @id @default(autoincrement())
   news_title   String
+  news_slug    String   @unique
   news_content String
   news_images  String[]
   createdAt    DateTime @default(now())

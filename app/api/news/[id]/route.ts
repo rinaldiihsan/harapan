@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
+import { generateSlug } from '@/lib/slug';
 
 // GET by id — public
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
@@ -55,6 +56,10 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
       where: { id: Number(params.id) },
       data: {
         news_title: news_title || news.news_title,
+        ...(news_title &&
+          news_title !== news.news_title && {
+            news_slug: generateSlug(news_title),
+          }),
         news_content: news_content || news.news_content,
         news_images: imageUrls,
       },
