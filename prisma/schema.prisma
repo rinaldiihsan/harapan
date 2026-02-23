@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique
+  name         String
+  email        String   @unique
+  password     String
+  passwordSalt String
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Faq {
+  id        Int      @id @default(autoincrement())
+  faq_title String   @unique
+  faq_desc  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Carousel {
+  id               Int      @id @default(autoincrement())
+  carousel_image   String
+  carousel_caption String
+  carousel_desc    String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model News {
+  id           Int      @id @default(autoincrement())
+  news_title   String
+  news_content String
+  news_images  String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Gallery {
+  id               Int      @id @default(autoincrement())
+  gallery_title    String
+  gallery_category String
+  gallery_image    String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model KetuaYayasan {
+  id           Int      @id @default(autoincrement())
+  yayasanName  String
+  yayasanDesc  String
+  yayasanImage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
