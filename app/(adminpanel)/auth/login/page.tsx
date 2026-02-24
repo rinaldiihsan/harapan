@@ -48,6 +48,7 @@ export default function LoginPage() {
 
       // Simpan accessToken di localStorage
       localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('loginTime', new Date().toISOString());
 
       toast.success('Login berhasil');
       router.push('/admin/dashboard');
