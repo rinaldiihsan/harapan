@@ -27,6 +27,7 @@ const pendaftaranMenu = [
 const navLinks = [
   { href: '/', label: 'Beranda' },
   { href: '/tentang-kami', label: 'Tentang Kami' },
+  { href: '/berita', label: 'Berita' },
   { href: '/galeri', label: 'Galeri' },
 ];
 
@@ -140,7 +141,7 @@ export default function Navbar() {
             </button>
             <AnimatePresence>
               {isPendidikanOpen && (
-                <motion.div variants={dropdownVariants} initial="hidden" animate="visible" exit="exit" className="absolute top-full mt-2 bg-white text-black rounded-lg shadow-lg w-56 overflow-hidden">
+                <motion.div variants={dropdownVariants} initial="hidden" animate="visible" exit="exit" className="absolute top-full mt-2 bg-white text-black rounded-lg shadow-lg w-52 overflow-hidden">
                   {pendidikanMenu.map((item) => (
                     <Link key={item.href} href={item.href} className="block px-4 py-2.5 text-sm hover:bg-primaryGreen-100 hover:text-primaryGreen-800 transition-colors">
                       {item.label}
@@ -161,7 +162,7 @@ export default function Navbar() {
             </button>
             <AnimatePresence>
               {isPendaftaranOpen && (
-                <motion.div variants={dropdownVariants} initial="hidden" animate="visible" exit="exit" className="absolute top-full mt-2 bg-white text-black rounded-lg shadow-lg w-64 overflow-hidden">
+                <motion.div variants={dropdownVariants} initial="hidden" animate="visible" exit="exit" className="absolute top-full mt-2 bg-white text-black rounded-lg shadow-lg w-52 overflow-hidden">
                   {pendaftaranMenu.map((item) => (
                     <Link key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" className="block px-4 py-2.5 text-sm hover:bg-primaryGreen-100 hover:text-primaryGreen-800 transition-colors">
                       {item.label}
