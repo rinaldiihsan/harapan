@@ -19,6 +19,16 @@ const config: Config = {
           '700': '#047038',
           '800': '#00612A',
         },
+        primaryYellow: {
+          '100': '#FFF2BD',
+          '200': '#FFE9A2',
+          '300': '#FFDE7E',
+          '400': '#FFCF51',
+          '500': '#F3BF4B',
+          '600': '#E2A700',
+          '700': '#ECB101',
+          '800': '#E1A600',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
