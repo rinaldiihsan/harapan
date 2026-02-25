@@ -231,7 +231,7 @@ export default function TentangKamiPage() {
             </div>
             <div className="w-full max-w-2xl mx-auto">
               <div className="w-full aspect-[3/4]">
-                <ImageModal imageUrl="/struktur-organisasi.webp" altText="Struktur Organisasi Yayasan" />
+                <ImageModal imageUrl="/struktur-organisasi.png" altText="Struktur Organisasi Yayasan" />
               </div>
             </div>
           </div>
