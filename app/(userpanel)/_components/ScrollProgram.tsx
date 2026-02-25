@@ -26,8 +26,6 @@ export default function ScrollProgram() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="border-primaryGreen-700 text-primaryGreen-700 hover:bg-primaryGreen-100" />
-          <CarouselNext className="border-primaryGreen-700 text-primaryGreen-700 hover:bg-primaryGreen-100" />
         </Carousel>
       </div>
     </section>
