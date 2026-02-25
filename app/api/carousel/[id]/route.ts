@@ -6,9 +6,21 @@ import { parseFormData } from '@/lib/parseForm';
 
 // PUT update — protected
 async function updateHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const id = Number(params.id);
+
+  if (isNaN(id)) {
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+  }
+
   try {
     const carousel = await prisma.carousel.findUnique({
-      where: { id: Number(params.id) },
+      where: { id },
+      select: {
+        id: true,
+        carousel_image: true,
+        carousel_caption: true,
+        carousel_desc: true,
+      },
     });
 
     if (!carousel) {
@@ -22,19 +34,24 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
     let imageUrl = carousel.carousel_image;
 
     if (imageFiles.length > 0) {
-      // Hapus gambar lama dari Cloudinary
+      // Hapus & upload paralel tidak bisa karena upload butuh hasil delete dulu
+      // Tapi delete & upload tetap dijalankan sequential agar tidak orphan image
       await deleteFromCloudinary(carousel.carousel_image);
-
-      // Upload gambar baru
       imageUrl = await uploadToCloudinary(imageFiles[0].buffer, 'carousel', imageFiles[0].filename);
     }
 
     const updated = await prisma.carousel.update({
-      where: { id: Number(params.id) },
+      where: { id },
       data: {
         carousel_image: imageUrl,
         carousel_caption: carousel_caption || carousel.carousel_caption,
         carousel_desc: carousel_desc || carousel.carousel_desc,
+      },
+      select: {
+        id: true,
+        carousel_image: true,
+        carousel_caption: true,
+        carousel_desc: true,
       },
     });
 
@@ -46,19 +63,26 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
 
 // DELETE — protected
 async function deleteHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const id = Number(params.id);
+
+  if (isNaN(id)) {
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+  }
+
   try {
     const carousel = await prisma.carousel.findUnique({
-      where: { id: Number(params.id) },
+      where: { id },
+      select: { id: true, carousel_image: true },
     });
 
     if (!carousel) {
       return NextResponse.json({ message: 'Carousel not found' }, { status: 404 });
     }
 
-    // Hapus gambar dari Cloudinary
+    // Hapus dari Cloudinary dan DB secara paralel tidak aman —
+    // jalankan delete Cloudinary dulu, baru delete DB
     await deleteFromCloudinary(carousel.carousel_image);
-
-    await prisma.carousel.delete({ where: { id: Number(params.id) } });
+    await prisma.carousel.delete({ where: { id } });
 
     return NextResponse.json({ message: 'Carousel deleted successfully' }, { status: 200 });
   } catch (error: any) {

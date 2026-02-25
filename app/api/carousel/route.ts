@@ -4,11 +4,21 @@ import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
 
+// Cache 60 detik — data carousel jarang berubah
+export const revalidate = 60;
+
 // GET all carousel — public
 export async function GET() {
   try {
     const carousel = await prisma.carousel.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 3, // batasi langsung di query, tidak perlu slice di frontend
+      select: {
+        id: true,
+        carousel_image: true,
+        carousel_caption: true,
+        carousel_desc: true,
+      },
     });
 
     return NextResponse.json({ data: carousel }, { status: 200 });
@@ -39,6 +49,12 @@ async function createHandler(req: NextRequest) {
         carousel_image: imageUrl,
         carousel_caption,
         carousel_desc,
+      },
+      select: {
+        id: true,
+        carousel_image: true,
+        carousel_caption: true,
+        carousel_desc: true,
       },
     });
 

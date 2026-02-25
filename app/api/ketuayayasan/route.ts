@@ -4,11 +4,22 @@ import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
 
+// Cache 60 detik — data ketua yayasan sangat jarang berubah
+export const revalidate = 60;
+
+const selectFields = {
+  id: true,
+  yayasanName: true,
+  yayasanDesc: true,
+  yayasanImage: true,
+};
+
 // GET all — public
 export async function GET() {
   try {
     const data = await prisma.ketuaYayasan.findMany({
       orderBy: { createdAt: 'desc' },
+      select: selectFields,
     });
 
     return NextResponse.json({ data }, { status: 200 });
@@ -35,11 +46,8 @@ async function createHandler(req: NextRequest) {
     }
 
     const data = await prisma.ketuaYayasan.create({
-      data: {
-        yayasanName,
-        yayasanDesc,
-        yayasanImage,
-      },
+      data: { yayasanName, yayasanDesc, yayasanImage },
+      select: selectFields,
     });
 
     return NextResponse.json({ message: 'Berhasil menambahkan data ketua yayasan', data }, { status: 201 });

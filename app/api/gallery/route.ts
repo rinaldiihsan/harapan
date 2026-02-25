@@ -4,11 +4,20 @@ import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
 
+// Cache 60 detik — data gallery jarang berubah
+export const revalidate = 60;
+
 // GET all gallery — public
 export async function GET() {
   try {
     const gallery = await prisma.gallery.findMany({
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        gallery_title: true,
+        gallery_category: true,
+        gallery_image: true,
+      },
     });
 
     return NextResponse.json({ data: gallery }, { status: 200 });
@@ -28,6 +37,7 @@ async function createHandler(req: NextRequest) {
     }
 
     const imageFiles = files['gallery_image'] ?? [];
+
     if (imageFiles.length === 0) {
       return NextResponse.json({ message: 'At least one image is required' }, { status: 400 });
     }
@@ -43,6 +53,12 @@ async function createHandler(req: NextRequest) {
         gallery_title,
         gallery_category,
         gallery_image: imageUrls,
+      },
+      select: {
+        id: true,
+        gallery_title: true,
+        gallery_category: true,
+        gallery_image: true,
       },
     });
 
