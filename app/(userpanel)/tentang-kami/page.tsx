@@ -229,8 +229,10 @@ export default function TentangKamiPage() {
                 </p>
               </div>
             </div>
-            <div className="w-full lg:w-1/2">
-              <ImageModal imageUrl="/struktur-organisasi.webp" altText="Struktur Organisasi Yayasan" />
+            <div className="w-full max-w-2xl mx-auto">
+              <div className="w-full aspect-[3/4]">
+                <ImageModal imageUrl="/struktur-organisasi.webp" altText="Struktur Organisasi Yayasan" />
+              </div>
             </div>
           </div>
         </div>
@@ -256,7 +258,7 @@ export default function TentangKamiPage() {
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto h-screen flex items-center justify-center">
-            <div className="aspect-[3/4] h-full">
+            <div className="w-full h-full">
               <ImageModal imageUrl="/lirik-lagu.jpg" altText="Lirik Mars Harapan" />
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface Props {
   imageUrl: string;
@@ -17,6 +17,8 @@ export default function ImageModal({ imageUrl, altText }: Props) {
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-4xl p-2 sm:p-4">
+        <DialogTitle className="hidden">Image preview</DialogTitle>
+        <DialogDescription className="hidden">Preview image</DialogDescription>
         <Image src={imageUrl} alt={altText} width={1200} height={800} className="w-full h-auto max-h-[90vh] object-contain rounded-lg" priority />
       </DialogContent>
     </Dialog>

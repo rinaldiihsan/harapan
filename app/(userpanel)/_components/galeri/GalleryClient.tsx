@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface GalleryItem {
@@ -145,6 +145,8 @@ export default function GalleryClient() {
       {/* Modal Preview */}
       <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
         <DialogContent className="max-w-3xl p-3">
+          <DialogTitle className="hidden">Image preview</DialogTitle>
+          <DialogDescription className="hidden">Preview image</DialogDescription>
           {selectedItem && (
             <div className="flex flex-col gap-3">
               {/* Main Image */}
