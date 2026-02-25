@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import BeritaDetailClient from '../../_components/berita/BeritaDetailClient';
 
 interface Props {
@@ -8,10 +7,22 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/news/slug/${params.slug}`, { cache: 'no-store' });
+    // Gunakan revalidate bukan no-store agar konsisten dengan route API
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/news/slug/${params.slug}`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) return { title: 'Berita' };
+
     const data = await res.json();
+    const news = data.data;
+
     return {
-      title: data.data?.news_title ?? 'Berita',
+      title: news?.news_title ?? 'Berita',
+      openGraph: {
+        title: news?.news_title,
+        images: news?.news_images?.[0] ? [{ url: news.news_images[0] }] : [],
+      },
     };
   } catch {
     return { title: 'Berita' };

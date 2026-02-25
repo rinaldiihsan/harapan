@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import axios from 'axios';
 import Autoplay from 'embla-carousel-autoplay';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -20,9 +21,8 @@ export default function HeroCarousel() {
     const fetchCarousels = async () => {
       try {
         const res = await axios.get('/api/carousel');
-        const data = res.data.data ?? [];
-        const sorted = [...data].sort((a: CarouselItem, b: CarouselItem) => b.id - a.id).slice(0, 3);
-        setCarousels(sorted);
+        // API sudah take: 4 dan sort desc — tidak perlu sort/slice di sini
+        setCarousels(res.data.data ?? []);
       } catch (error) {
         console.error('Error fetching carousel:', error);
       } finally {
@@ -42,10 +42,18 @@ export default function HeroCarousel() {
     <section className="w-full">
       <Carousel opts={{ loop: true }} plugins={[Autoplay({ delay: 5000, stopOnInteraction: false })]} className="w-full">
         <CarouselContent>
-          {carousels.map((carousel) => (
+          {carousels.map((carousel, index) => (
             <CarouselItem key={carousel.id}>
               <div className="relative w-full h-[40vh] lg:h-[668px] xl:h-[778px] overflow-hidden">
-                <img src={carousel.carousel_image} alt={carousel.carousel_caption} className="w-full h-full object-cover" loading="lazy" />
+                <Image
+                  src={carousel.carousel_image}
+                  alt={carousel.carousel_caption}
+                  fill
+                  className="object-cover"
+                  // Slide pertama priority, sisanya lazy
+                  priority={index === 0}
+                  sizes="100vw"
+                />
                 <div className="absolute inset-0 bg-black/55" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-y-4 px-4 text-center">
                   <h1 className="text-white text-lg md:text-2xl lg:text-3xl xl:text-4xl font-bold uppercase max-w-4xl">{carousel.carousel_caption}</h1>
@@ -55,8 +63,6 @@ export default function HeroCarousel() {
             </CarouselItem>
           ))}
         </CarouselContent>
-
-        {/* Arrows */}
         <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 border-none text-white" />
         <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 border-none text-white" />
       </Carousel>

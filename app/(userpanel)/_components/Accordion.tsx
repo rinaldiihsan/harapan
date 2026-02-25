@@ -42,6 +42,7 @@ export default function Accordion() {
     const fetchFaq = async () => {
       try {
         const res = await axios.get('/api/faq');
+        // API sudah select field yang diperlukan dan sort desc
         setFaqList(res.data.data ?? []);
       } catch (error) {
         console.error('Error fetching FAQ:', error);
@@ -59,7 +60,6 @@ export default function Accordion() {
   return (
     <section className="w-full py-16 px-4">
       <div className="max-w-7xl mx-auto flex flex-col gap-y-12">
-        {/* Header */}
         <h1 className="uppercase text-xl md:text-2xl xl:text-3xl font-bold text-center">Pertanyaan yang Sering Diajukan</h1>
 
         {isLoading ? (
@@ -68,15 +68,15 @@ export default function Accordion() {
               <div key={i} className="h-14 bg-gray-200 rounded-lg animate-pulse" />
             ))}
           </div>
+        ) : faqList.length === 0 ? (
+          <p className="text-center text-gray-500">Belum ada FAQ tersedia</p>
         ) : (
           <div className="flex flex-col lg:flex-row gap-5 lg:gap-10">
-            {/* Left */}
             <div className="flex flex-col gap-y-3 flex-1">
               {leftColumn.map((item, index) => (
                 <AccordionItem key={item.id} item={item} isOpen={openIndex === index} onClick={() => setOpenIndex(openIndex === index ? null : index)} />
               ))}
             </div>
-            {/* Right */}
             <div className="flex flex-col gap-y-3 flex-1">
               {rightColumn.map((item, index) => (
                 <AccordionItem key={item.id} item={item} isOpen={openIndex === index + midPoint} onClick={() => setOpenIndex(openIndex === index + midPoint ? null : index + midPoint)} />

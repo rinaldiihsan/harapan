@@ -255,8 +255,10 @@ export default function TentangKamiPage() {
               />
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto">
-            <ImageModal imageUrl="/lirik-lagu.jpg" altText="Lirik Mars Harapan" />
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl mx-auto h-screen flex items-center justify-center">
+            <div className="aspect-[3/4] h-full">
+              <ImageModal imageUrl="/lirik-lagu.jpg" altText="Lirik Mars Harapan" />
+            </div>
           </div>
         </div>
       </section>
