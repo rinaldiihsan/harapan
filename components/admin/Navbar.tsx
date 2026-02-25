@@ -4,18 +4,20 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import axiosAdmin from '@/lib/axiosAdmin';
 
 export default function Navbar() {
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'DELETE' });
-      localStorage.removeItem('accessToken');
-      toast.success('Logout berhasil');
-      router.push('/auth/login');
+      await axiosAdmin.delete('/api/auth/logout');
     } catch {
-      toast.error('Gagal logout');
+      toast.error('Gagal logout. Silakan coba lagi.');
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('loginTime');
+      window.location.href = '/auth/login';
     }
   };
 

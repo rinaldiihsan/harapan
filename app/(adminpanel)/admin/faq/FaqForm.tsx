@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 const faqSchema = z.object({
   faq_title: z.string().min(1, { message: 'Pertanyaan harus diisi' }),
@@ -49,31 +49,18 @@ export default function FaqForm({ data, onSuccess }: Props) {
   const onSubmit = async (values: FaqFormValues) => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
-
       const url = isEdit ? `/api/faq/${data.id}` : '/api/faq';
-      const method = isEdit ? 'PUT' : 'POST';
+      const method = isEdit ? 'put' : 'post';
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(values),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.message ?? 'Gagal menyimpan FAQ');
-        return;
-      }
+      // axiosAdmin otomatis attach token + handle refresh jika 401
+      // Data JSON biasa (bukan FormData), axiosAdmin set Content-Type otomatis
+      await axiosAdmin[method](url, values);
 
       toast.success(isEdit ? 'FAQ berhasil diupdate' : 'FAQ berhasil ditambahkan');
       onSuccess();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menyimpan FAQ';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

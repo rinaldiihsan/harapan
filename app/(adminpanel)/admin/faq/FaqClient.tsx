@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import FaqForm from './FaqForm';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 interface Faq {
   id: number;
@@ -25,9 +26,8 @@ export default function FaqClient() {
   const fetchFaq = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/faq');
-      const data = await res.json();
-      setFaqList(data.data ?? []);
+      const res = await axiosAdmin.get('/api/faq');
+      setFaqList(res.data.data ?? []);
     } catch {
       toast.error('Gagal memuat data FAQ');
     } finally {
@@ -57,22 +57,14 @@ export default function FaqClient() {
   const handleDelete = async () => {
     if (!selected) return;
     try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(`/api/faq/${selected.id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        toast.error('Gagal menghapus FAQ');
-        return;
-      }
+      await axiosAdmin.delete(`/api/faq/${selected.id}`);
 
       toast.success('FAQ berhasil dihapus');
       setOpenDelete(false);
       fetchFaq();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menghapus FAQ';
+      toast.error(message);
     }
   };
 

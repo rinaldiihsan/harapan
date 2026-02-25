@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { compressImage } from '@/lib/compressImage';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 const ketuaSchema = z.object({
   yayasanName: z.string().min(1, { message: 'Nama harus diisi' }),
@@ -60,7 +61,6 @@ export default function KetuaYayasanForm({ data, onSuccess }: Props) {
   const onSubmit = async (values: KetuaFormValues) => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
       const formData = new FormData();
 
       formData.append('yayasanName', values.yayasanName);
@@ -72,25 +72,16 @@ export default function KetuaYayasanForm({ data, onSuccess }: Props) {
       }
 
       const url = isEdit ? `/api/ketuayayasan/${data.id}` : '/api/ketuayayasan';
-      const method = isEdit ? 'PUT' : 'POST';
+      const method = isEdit ? 'put' : 'post';
 
-      const res = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.message ?? 'Gagal menyimpan data');
-        return;
-      }
+      // axiosAdmin otomatis attach token + handle refresh jika 401
+      await axiosAdmin[method](url, formData);
 
       toast.success(isEdit ? 'Data berhasil diupdate' : 'Data berhasil ditambahkan');
       onSuccess();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menyimpan data';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +122,6 @@ export default function KetuaYayasanForm({ data, onSuccess }: Props) {
         <div className="space-y-2">
           <label className="text-sm font-medium text-black">Foto {isEdit && '(kosongkan jika tidak ingin mengubah foto)'}</label>
 
-          {/* Preview area */}
           <div className="flex items-center gap-4">
             {preview ? (
               <img src={preview} alt="preview" className="h-20 w-20 object-cover rounded-full border border-gray-200" />

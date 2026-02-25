@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { compressImage } from '@/lib/compressImage';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 const newsSchema = z.object({
   news_title: z.string().min(1, { message: 'Judul harus diisi' }),
@@ -53,7 +54,6 @@ export default function NewsForm({ data, onSuccess }: Props) {
       news_title: data?.news_title ?? '',
       news_content: data?.news_content ?? '',
     });
-    // Reset image slots saat data berubah
     setImageSlots([{ id: 1, file: null, preview: null }]);
   }, [data]);
 
@@ -93,7 +93,6 @@ export default function NewsForm({ data, onSuccess }: Props) {
 
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
       const formData = new FormData();
 
       formData.append('news_title', values.news_title);
@@ -112,25 +111,16 @@ export default function NewsForm({ data, onSuccess }: Props) {
       });
 
       const url = isEdit ? `/api/news/${data.id}` : '/api/news';
-      const method = isEdit ? 'PUT' : 'POST';
+      const method = isEdit ? 'put' : 'post';
 
-      const res = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.message ?? 'Gagal menyimpan berita');
-        return;
-      }
+      // Gunakan axiosAdmin — token & refresh otomatis ditangani interceptor
+      await axiosAdmin[method](url, formData);
 
       toast.success(isEdit ? 'Berita berhasil diupdate' : 'Berita berhasil ditambahkan');
       onSuccess();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menyimpan berita';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

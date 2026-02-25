@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import KetuaYayasanForm from './KetuaYayasanForm';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 interface KetuaYayasan {
   id: number;
@@ -27,9 +28,8 @@ export default function KetuaYayasanClient() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/ketuayayasan');
-      const data = await res.json();
-      setList(data.data ?? []);
+      const res = await axiosAdmin.get('/api/ketuayayasan');
+      setList(res.data.data ?? []);
     } catch {
       toast.error('Gagal memuat data ketua yayasan');
     } finally {
@@ -64,22 +64,14 @@ export default function KetuaYayasanClient() {
   const handleDelete = async () => {
     if (!selected) return;
     try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(`/api/ketuayayasan/${selected.id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        toast.error('Gagal menghapus data');
-        return;
-      }
+      await axiosAdmin.delete(`/api/ketuayayasan/${selected.id}`);
 
       toast.success('Data berhasil dihapus');
       setOpenDelete(false);
       fetchData();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menghapus data';
+      toast.error(message);
     }
   };
 

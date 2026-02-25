@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { compressImage } from '@/lib/compressImage';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 const gallerySchema = z.object({
   gallery_title: z.string().min(1, { message: 'Judul harus diisi' }),
@@ -91,7 +92,6 @@ export default function GalleryForm({ data, onSuccess }: Props) {
 
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
       const formData = new FormData();
 
       formData.append('gallery_title', values.gallery_title);
@@ -109,25 +109,16 @@ export default function GalleryForm({ data, onSuccess }: Props) {
       });
 
       const url = isEdit ? `/api/gallery/${data.id}` : '/api/gallery';
-      const method = isEdit ? 'PUT' : 'POST';
+      const method = isEdit ? 'put' : 'post';
 
-      const res = await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.message ?? 'Gagal menyimpan galeri');
-        return;
-      }
+      // axiosAdmin otomatis attach token + handle refresh jika 401
+      await axiosAdmin[method](url, formData);
 
       toast.success(isEdit ? 'Galeri berhasil diupdate' : 'Galeri berhasil ditambahkan');
       onSuccess();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menyimpan galeri';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

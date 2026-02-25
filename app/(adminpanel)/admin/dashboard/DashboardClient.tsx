@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Newspaper, Images, GalleryHorizontal, CircleHelp, UserRound } from 'lucide-react';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 interface ActivityItem {
   label: string;
@@ -79,11 +80,14 @@ export default function DashboardClient() {
     try {
       setIsLoading(true);
 
-      const [newsRes, galleryRes, carouselRes, faqRes, ketuaRes] = await Promise.all([fetch('/api/news'), fetch('/api/gallery'), fetch('/api/carousel'), fetch('/api/faq'), fetch('/api/ketuayayasan')]);
+      const [newsRes, galleryRes, carouselRes, faqRes, ketuaRes] = await Promise.all([
+        axiosAdmin.get('/api/news'),
+        axiosAdmin.get('/api/gallery'),
+        axiosAdmin.get('/api/carousel'),
+        axiosAdmin.get('/api/faq'),
+        axiosAdmin.get('/api/ketuayayasan'),
+      ]);
 
-      const [newsData, galleryData, carouselData, faqData, ketuaData] = await Promise.all([newsRes.json(), galleryRes.json(), carouselRes.json(), faqRes.json(), ketuaRes.json()]);
-
-      // Ambil updatedAt terbaru dari masing-masing fitur
       const getLatestUpdatedAt = (items: any[]): string | null => {
         if (!items || items.length === 0) return null;
         return items.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0].updatedAt;
@@ -91,24 +95,24 @@ export default function DashboardClient() {
 
       setStats({
         news: {
-          count: newsData.data?.length ?? 0,
-          updatedAt: getLatestUpdatedAt(newsData.data ?? []),
+          count: newsRes.data.data?.length ?? 0,
+          updatedAt: getLatestUpdatedAt(newsRes.data.data ?? []),
         },
         gallery: {
-          count: galleryData.data?.length ?? 0,
-          updatedAt: getLatestUpdatedAt(galleryData.data ?? []),
+          count: galleryRes.data.data?.length ?? 0,
+          updatedAt: getLatestUpdatedAt(galleryRes.data.data ?? []),
         },
         carousel: {
-          count: carouselData.data?.length ?? 0,
-          updatedAt: getLatestUpdatedAt(carouselData.data ?? []),
+          count: carouselRes.data.data?.length ?? 0,
+          updatedAt: getLatestUpdatedAt(carouselRes.data.data ?? []),
         },
         faq: {
-          count: faqData.data?.length ?? 0,
-          updatedAt: getLatestUpdatedAt(faqData.data ?? []),
+          count: faqRes.data.data?.length ?? 0,
+          updatedAt: getLatestUpdatedAt(faqRes.data.data ?? []),
         },
         ketuaYayasan: {
-          count: ketuaData.data?.length ?? 0,
-          updatedAt: getLatestUpdatedAt(ketuaData.data ?? []),
+          count: ketuaRes.data.data?.length ?? 0,
+          updatedAt: getLatestUpdatedAt(ketuaRes.data.data ?? []),
         },
       });
     } catch (error) {
@@ -178,7 +182,6 @@ export default function DashboardClient() {
       icon: <UserRound size={16} className="text-primaryGreen-700" />,
     },
   ]
-    // Sort by updatedAt terbaru
     .filter((item) => item.updatedAt !== null)
     .sort((a, b) => new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime());
 

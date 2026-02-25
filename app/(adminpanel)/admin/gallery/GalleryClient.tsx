@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import GalleryForm from './GalleryForm';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 interface Gallery {
   id: number;
@@ -27,9 +28,8 @@ export default function GalleryClient() {
   const fetchGallery = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/gallery');
-      const data = await res.json();
-      setGalleryList(data.data ?? []);
+      const res = await axiosAdmin.get('/api/gallery');
+      setGalleryList(res.data.data ?? []);
     } catch {
       toast.error('Gagal memuat data galeri');
     } finally {
@@ -64,22 +64,14 @@ export default function GalleryClient() {
   const handleDelete = async () => {
     if (!selected) return;
     try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(`/api/gallery/${selected.id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        toast.error('Gagal menghapus galeri');
-        return;
-      }
+      await axiosAdmin.delete(`/api/gallery/${selected.id}`);
 
       toast.success('Galeri berhasil dihapus');
       setOpenDelete(false);
       fetchGallery();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menghapus galeri';
+      toast.error(message);
     }
   };
 

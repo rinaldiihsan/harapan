@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import NewsForm from './NewsForm';
+import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 interface News {
   id: number;
@@ -27,9 +28,9 @@ export default function NewsClient() {
   const fetchNews = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/news');
-      const data = await res.json();
-      setNewsList(data.data ?? []);
+      // GET publik — tidak perlu token, cukup axios biasa, tapi axiosAdmin juga aman dipakai
+      const res = await axiosAdmin.get('/api/news');
+      setNewsList(res.data.data ?? []);
     } catch {
       toast.error('Gagal memuat data berita');
     } finally {
@@ -64,22 +65,15 @@ export default function NewsClient() {
   const handleDelete = async () => {
     if (!selected) return;
     try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(`/api/news/${selected.id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        toast.error('Gagal menghapus berita');
-        return;
-      }
+      // axiosAdmin otomatis attach token + handle refresh jika 401
+      await axiosAdmin.delete(`/api/news/${selected.id}`);
 
       toast.success('Berita berhasil dihapus');
       setOpenDelete(false);
       fetchNews();
-    } catch {
-      toast.error('Terjadi kesalahan');
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? 'Gagal menghapus berita';
+      toast.error(message);
     }
   };
 
@@ -152,7 +146,6 @@ export default function NewsClient() {
           </DialogHeader>
           {selected && (
             <div className="space-y-4">
-              {/* Images */}
               {selected.news_images.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
                   {selected.news_images.map((url, i) => (
@@ -160,8 +153,6 @@ export default function NewsClient() {
                   ))}
                 </div>
               )}
-
-              {/* Meta */}
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">
                   {new Date(selected.createdAt).toLocaleDateString('id-ID', {
@@ -172,8 +163,6 @@ export default function NewsClient() {
                   })}
                 </span>
               </div>
-
-              {/* Content */}
               <div className="text-black text-sm leading-relaxed whitespace-pre-wrap border-t border-gray-100 pt-4">{selected.news_content}</div>
             </div>
           )}
