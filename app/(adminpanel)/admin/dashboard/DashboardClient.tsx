@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Newspaper, Images, GalleryHorizontal, CircleHelp, UserRound } from 'lucide-react';
+import { Newspaper, Images, GalleryHorizontal, CircleHelp, UserRound, Clock } from 'lucide-react';
 import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
 
 interface ActivityItem {
@@ -26,6 +26,15 @@ const getGreeting = (): string => {
   if (hour >= 12 && hour < 15) return 'Selamat Siang';
   if (hour >= 15 && hour < 18) return 'Selamat Sore';
   return 'Selamat Malam';
+};
+
+const formatCurrentTime = (date: Date): string => {
+  return date.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
 };
 
 const formatLoginTime = (isoString: string): string => {
@@ -61,6 +70,7 @@ const formatRelativeTime = (isoString: string): string => {
 
 export default function DashboardClient() {
   const [loginTime, setLoginTime] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState<DashboardStats>({
     news: { count: 0, updatedAt: null },
     gallery: { count: 0, updatedAt: null },
@@ -69,6 +79,15 @@ export default function DashboardClient() {
     ketuaYayasan: { count: 0, updatedAt: null },
   });
   const [isLoading, setIsLoading] = useState(true);
+
+  // Effect untuk Real-time Clock
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer); // Bersihkan interval saat komponen unmount
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem('loginTime');
@@ -188,9 +207,16 @@ export default function DashboardClient() {
   return (
     <div className="pt-16 space-y-6">
       {/* Greeting */}
-      <div className="bg-white rounded-lg border border-gray-200 px-6 py-5">
-        <h1 className="text-xl font-semibold text-black">{getGreeting()}, Admin!</h1>
-        {loginTime && <p className="text-sm text-gray-500 mt-1">Login terakhir: {formatLoginTime(loginTime)}</p>}
+      <div className="bg-white rounded-lg border border-gray-200 px-6 py-5 flex flex-row justify-between items-center">
+        <div className="flex flex-col">
+          <h1 className="text-xl font-semibold text-black">{getGreeting()}, Admin!</h1>
+          {loginTime && <p className="text-sm text-gray-500 mt-1">Login terakhir: {formatLoginTime(loginTime)}</p>}
+        </div>
+        {/* Widget Jam Digital */}
+        <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-full border border-gray-100 w-fit">
+          <Clock size={18} className="text-primaryGreen-700" />
+          <span className="text-lg font-mono font-bold text-gray-700">{formatCurrentTime(currentTime)}</span>
+        </div>
       </div>
 
       {/* Stat Cards */}

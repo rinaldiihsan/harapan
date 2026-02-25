@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import axiosAdmin from '@/lib/axiosAdmin';
+import Image from 'next/image';
 
 export default function Navbar() {
   const router = useRouter();
@@ -23,7 +24,10 @@ export default function Navbar() {
 
   return (
     <nav className="h-16 bg-primaryGreen-700 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-50">
-      <span className="text-white font-semibold text-lg">Harapan Admin</span>
+      <div className="flex flex-row items-center gap-2">
+        <Image src="/logo.png" alt="Logo Harapan" width={50} height={50} className="w-12 h-12" />
+        <h1 className="text-white font-semibold text-lg">Harapan Admin</h1>
+      </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

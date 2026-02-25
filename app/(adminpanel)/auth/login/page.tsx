@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import Image from 'next/image';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Email tidak valid' }),
@@ -62,7 +63,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-primaryGreen-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md border border-primaryGreen-300 shadow-sm">
-        <CardHeader className="space-y-1 pb-4">
+        <CardHeader className="space-y-1 pb-4 text-center">
+          <Image src="/logo.png" alt="Logo Harapan" width={48} height={48} className="mx-auto" />
           <CardTitle className="text-2xl font-semibold text-black">Harapan Admin Panel</CardTitle>
           <CardDescription className="text-black">Masuk untuk mengelola konten website</CardDescription>
         </CardHeader>
