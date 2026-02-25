@@ -21,7 +21,7 @@ export default function HeroCarousel() {
       try {
         const res = await axios.get('/api/carousel');
         const data = res.data.data ?? [];
-        const sorted = [...data].sort((a: CarouselItem, b: CarouselItem) => b.id - a.id).slice(0, 4);
+        const sorted = [...data].sort((a: CarouselItem, b: CarouselItem) => b.id - a.id).slice(0, 3);
         setCarousels(sorted);
       } catch (error) {
         console.error('Error fetching carousel:', error);
