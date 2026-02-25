@@ -1,29 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import FaqForm from './FaqForm';
-import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
+import axiosAdmin from '@/lib/axiosAdmin';
 
 interface Faq {
   id: number;
   faq_title: string;
   faq_desc: string;
-  createdAt: string;
+  // createdAt dihapus — tidak ada di response API (tidak di-select)
 }
 
 export default function FaqClient() {
   const [faqList, setFaqList] = useState<Faq[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [openForm, setOpenForm] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selected, setSelected] = useState<Faq | null>(null);
 
-  const fetchFaq = async () => {
+  const fetchFaq = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await axiosAdmin.get('/api/faq');
@@ -33,11 +34,11 @@ export default function FaqClient() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchFaq();
-  }, []);
+  }, [fetchFaq]);
 
   const handleCreate = () => {
     setSelected(null);
@@ -56,15 +57,18 @@ export default function FaqClient() {
 
   const handleDelete = async () => {
     if (!selected) return;
+    setIsDeleting(true);
     try {
       await axiosAdmin.delete(`/api/faq/${selected.id}`);
-
       toast.success('FAQ berhasil dihapus');
       setOpenDelete(false);
+      setSelected(null);
       fetchFaq();
     } catch (error: any) {
       const message = error?.response?.data?.message ?? 'Gagal menghapus FAQ';
       toast.error(message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -88,20 +92,21 @@ export default function FaqClient() {
               <TableHead className="text-black w-12">No</TableHead>
               <TableHead className="text-black">Pertanyaan</TableHead>
               <TableHead className="text-black">Jawaban</TableHead>
-              <TableHead className="text-black">Tanggal</TableHead>
               <TableHead className="text-black text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-black py-10">
-                  Memuat data...
-                </TableCell>
-              </TableRow>
+              [...Array(3)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell colSpan={4}>
+                    <div className="h-10 bg-gray-100 animate-pulse rounded" />
+                  </TableCell>
+                </TableRow>
+              ))
             ) : faqList.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-black py-10">
+                <TableCell colSpan={4} className="text-center text-black py-10">
                   Belum ada data FAQ
                 </TableCell>
               </TableRow>
@@ -113,7 +118,6 @@ export default function FaqClient() {
                   <TableCell className="text-black max-w-sm">
                     <p className="truncate">{faq.faq_desc}</p>
                   </TableCell>
-                  <TableCell className="text-black">{new Date(faq.createdAt).toLocaleDateString('id-ID')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => handleEdit(faq)} className="border-primaryGreen-300 text-black hover:bg-primaryGreen-100">
@@ -157,11 +161,11 @@ export default function FaqClient() {
             Yakin ingin menghapus FAQ <span className="font-medium">"{selected?.faq_title}"</span>? Tindakan ini tidak dapat dibatalkan.
           </p>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setOpenDelete(false)} className="text-black">
+            <Button variant="outline" onClick={() => setOpenDelete(false)} disabled={isDeleting} className="text-black">
               Batal
             </Button>
-            <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
-              Hapus
+            <Button onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
             </Button>
           </div>
         </DialogContent>

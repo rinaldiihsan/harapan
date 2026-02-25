@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,6 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { compressImage } from '@/lib/compressImage';
+
+const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 const carouselSchema = z.object({
   carousel_caption: z.string().min(1, { message: 'Caption harus diisi' }),
@@ -51,10 +55,32 @@ export default function CarouselForm({ data, onSuccess }: Props) {
     setPreview(null);
   }, [data]);
 
+  // Revoke object URL saat unmount agar tidak memory leak
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0] ?? null;
+    if (!selected) return;
+
+    if (!ACCEPTED_TYPES.includes(selected.type)) {
+      toast.error('Format file tidak didukung. Gunakan JPG, PNG, atau WEBP');
+      e.target.value = '';
+      return;
+    }
+
+    if (selected.size > MAX_FILE_SIZE) {
+      toast.error('Ukuran file terlalu besar. Maksimal 3MB');
+      e.target.value = '';
+      return;
+    }
+
+    if (preview) URL.revokeObjectURL(preview);
     setFile(selected);
-    setPreview(selected ? URL.createObjectURL(selected) : null);
+    setPreview(URL.createObjectURL(selected));
   };
 
   const onSubmit = async (values: CarouselFormValues) => {
@@ -134,18 +160,23 @@ export default function CarouselForm({ data, onSuccess }: Props) {
 
         {/* Image Upload */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-black">Gambar {isEdit && '(kosongkan jika tidak ingin mengubah gambar)'}</label>
+          <label className="text-sm font-medium text-black">Gambar {isEdit && <span className="text-gray-500 font-normal">(kosongkan jika tidak ingin mengubah)</span>}</label>
 
-          {/* Existing image saat edit */}
+          {/* Gambar existing saat edit */}
           {isEdit && data.carousel_image && !preview && (
-            <div className="relative w-full">
-              <img src={data.carousel_image} alt="existing" className="w-full h-40 object-cover rounded border border-gray-200" />
+            <div className="relative w-full h-40 rounded border border-gray-200 overflow-hidden">
+              <Image src={data.carousel_image} alt="existing" fill sizes="(max-width: 512px) 100vw, 512px" className="object-cover" />
               <span className="absolute bottom-0 left-0 right-0 text-center text-xs bg-black/40 text-white rounded-b py-0.5">Gambar saat ini</span>
             </div>
           )}
 
           {/* Preview gambar baru */}
-          {preview && <img src={preview} alt="preview" className="w-full h-40 object-cover rounded border border-gray-200" />}
+          {preview && (
+            <div className="relative w-full h-40 rounded border border-gray-200 overflow-hidden">
+              <Image src={preview} alt="preview" fill sizes="(max-width: 512px) 100vw, 512px" className="object-cover" />
+              <span className="absolute bottom-0 left-0 right-0 text-center text-xs bg-black/40 text-white rounded-b py-0.5">Preview gambar baru</span>
+            </div>
+          )}
 
           <Input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="border-gray-300 focus-visible:ring-primaryGreen-600" onChange={handleFileChange} />
           <p className="text-xs text-gray-500">Format: JPG, PNG, WEBP. Maks 3MB.</p>

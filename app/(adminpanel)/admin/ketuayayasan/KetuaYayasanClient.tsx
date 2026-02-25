@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import KetuaYayasanForm from './KetuaYayasanForm';
 import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
+import Image from 'next/image';
 
 interface KetuaYayasan {
   id: number;
@@ -93,7 +94,6 @@ export default function KetuaYayasanClient() {
               <TableHead className="text-black">Foto</TableHead>
               <TableHead className="text-black">Nama</TableHead>
               <TableHead className="text-black">Deskripsi</TableHead>
-              <TableHead className="text-black">Tanggal</TableHead>
               <TableHead className="text-black text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -116,7 +116,7 @@ export default function KetuaYayasanClient() {
                   <TableCell className="text-black">{index + 1}</TableCell>
                   <TableCell>
                     {item.yayasanImage ? (
-                      <img src={item.yayasanImage} alt={item.yayasanName} className="h-12 w-12 object-cover rounded-full border border-gray-200" />
+                      <Image src={item.yayasanImage} alt={item.yayasanName} className="h-12 w-12 object-cover rounded-full border border-gray-200" width={48} height={48} />
                     ) : (
                       <div className="h-12 w-12 rounded-full bg-primaryGreen-100 flex items-center justify-center">
                         <span className="text-primaryGreen-700 text-sm font-medium">{item.yayasanName.charAt(0).toUpperCase()}</span>
@@ -127,7 +127,6 @@ export default function KetuaYayasanClient() {
                   <TableCell className="text-black max-w-xs">
                     <p className="truncate">{item.yayasanDesc}</p>
                   </TableCell>
-                  <TableCell className="text-black">{new Date(item.createdAt).toLocaleDateString('id-ID')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => handlePreview(item)} className="border-gray-200 text-black hover:bg-gray-50">
@@ -158,7 +157,7 @@ export default function KetuaYayasanClient() {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 {selected.yayasanImage ? (
-                  <img src={selected.yayasanImage} alt={selected.yayasanName} className="h-20 w-20 object-cover rounded-full border border-gray-200" />
+                  <Image src={selected.yayasanImage} alt={selected.yayasanName} className="h-20 w-20 object-cover rounded-full border border-gray-200" width={80} height={80} />
                 ) : (
                   <div className="h-20 w-20 rounded-full bg-primaryGreen-100 flex items-center justify-center">
                     <span className="text-primaryGreen-700 text-2xl font-medium">{selected.yayasanName.charAt(0).toUpperCase()}</span>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { Pencil, Trash2, Plus, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,18 +14,19 @@ interface Carousel {
   carousel_image: string;
   carousel_caption: string;
   carousel_desc: string;
-  createdAt: string;
+  // createdAt dihapus — tidak ada di response API
 }
 
 export default function CarouselClient() {
   const [carouselList, setCarouselList] = useState<Carousel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [openForm, setOpenForm] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openPreview, setOpenPreview] = useState(false);
   const [selected, setSelected] = useState<Carousel | null>(null);
 
-  const fetchCarousel = async () => {
+  const fetchCarousel = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await fetch('/api/carousel');
@@ -35,11 +37,11 @@ export default function CarouselClient() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCarousel();
-  }, []);
+  }, [fetchCarousel]);
 
   const handleCreate = () => {
     setSelected(null);
@@ -63,6 +65,7 @@ export default function CarouselClient() {
 
   const handleDelete = async () => {
     if (!selected) return;
+    setIsDeleting(true);
     try {
       const token = localStorage.getItem('accessToken');
       const res = await fetch(`/api/carousel/${selected.id}`, {
@@ -70,16 +73,21 @@ export default function CarouselClient() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      const result = await res.json();
+
       if (!res.ok) {
-        toast.error('Gagal menghapus carousel');
+        toast.error(result.message ?? 'Gagal menghapus carousel');
         return;
       }
 
       toast.success('Carousel berhasil dihapus');
       setOpenDelete(false);
+      setSelected(null);
       fetchCarousel();
     } catch {
       toast.error('Terjadi kesalahan');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -101,20 +109,21 @@ export default function CarouselClient() {
               <TableHead className="text-black">Gambar</TableHead>
               <TableHead className="text-black">Caption</TableHead>
               <TableHead className="text-black">Deskripsi</TableHead>
-              <TableHead className="text-black">Tanggal</TableHead>
               <TableHead className="text-black text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-black py-10">
-                  Memuat data...
-                </TableCell>
-              </TableRow>
+              [...Array(3)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell colSpan={5}>
+                    <div className="h-10 bg-gray-100 animate-pulse rounded" />
+                  </TableCell>
+                </TableRow>
+              ))
             ) : carouselList.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-black py-10">
+                <TableCell colSpan={5} className="text-center text-black py-10">
                   Belum ada data carousel
                 </TableCell>
               </TableRow>
@@ -123,13 +132,14 @@ export default function CarouselClient() {
                 <TableRow key={carousel.id}>
                   <TableCell className="text-black">{index + 1}</TableCell>
                   <TableCell>
-                    <img src={carousel.carousel_image} alt={carousel.carousel_caption} className="h-12 w-20 object-cover rounded" />
+                    <div className="relative h-12 w-20 rounded overflow-hidden">
+                      <Image src={carousel.carousel_image} alt={carousel.carousel_caption} fill sizes="80px" className="object-cover" />
+                    </div>
                   </TableCell>
                   <TableCell className="text-black font-medium max-w-xs truncate">{carousel.carousel_caption}</TableCell>
                   <TableCell className="text-black max-w-xs">
                     <p className="truncate">{carousel.carousel_desc}</p>
                   </TableCell>
-                  <TableCell className="text-black">{new Date(carousel.createdAt).toLocaleDateString('id-ID')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => handlePreview(carousel)} className="border-gray-200 text-black hover:bg-gray-50">
@@ -158,16 +168,10 @@ export default function CarouselClient() {
           </DialogHeader>
           {selected && (
             <div className="space-y-3">
-              <img src={selected.carousel_image} alt={selected.carousel_caption} className="w-full h-64 object-cover rounded-md border border-gray-200" />
+              <div className="relative w-full h-64 rounded-md border border-gray-200 overflow-hidden">
+                <Image src={selected.carousel_image} alt={selected.carousel_caption} fill priority sizes="(max-width: 768px) 100vw, 672px" className="object-cover" />
+              </div>
               <p className="text-black text-sm leading-relaxed">{selected.carousel_desc}</p>
-              <p className="text-xs text-gray-500">
-                {new Date(selected.createdAt).toLocaleDateString('id-ID', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
             </div>
           )}
         </DialogContent>
@@ -199,11 +203,11 @@ export default function CarouselClient() {
             Yakin ingin menghapus carousel <span className="font-medium">"{selected?.carousel_caption}"</span>? Tindakan ini tidak dapat dibatalkan.
           </p>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setOpenDelete(false)} className="text-black">
+            <Button variant="outline" onClick={() => setOpenDelete(false)} disabled={isDeleting} className="text-black">
               Batal
             </Button>
-            <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
-              Hapus
+            <Button onClick={handleDelete} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
             </Button>
           </div>
         </DialogContent>

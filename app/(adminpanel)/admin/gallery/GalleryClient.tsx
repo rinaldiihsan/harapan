@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import GalleryForm from './GalleryForm';
 import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
+import Image from 'next/image';
 
 interface Gallery {
   id: number;
@@ -93,7 +94,6 @@ export default function GalleryClient() {
               <TableHead className="text-black">Judul</TableHead>
               <TableHead className="text-black">Kategori</TableHead>
               <TableHead className="text-black">Gambar</TableHead>
-              <TableHead className="text-black">Tanggal</TableHead>
               <TableHead className="text-black text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -120,11 +120,10 @@ export default function GalleryClient() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      {gallery.gallery_image[0] && <img src={gallery.gallery_image[0]} alt={gallery.gallery_title} className="h-10 w-16 object-cover rounded" />}
+                      {gallery.gallery_image[0] && <Image src={gallery.gallery_image[0]} alt={gallery.gallery_title} className="h-10 w-16 object-cover rounded" width={100} height={100} />}
                       {gallery.gallery_image.length > 1 && <span className="text-xs text-gray-500">+{gallery.gallery_image.length - 1}</span>}
                     </div>
                   </TableCell>
-                  <TableCell className="text-black">{new Date(gallery.createdAt).toLocaleDateString('id-ID')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => handlePreview(gallery)} className="border-gray-200 text-black hover:bg-gray-50">
@@ -156,7 +155,7 @@ export default function GalleryClient() {
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-primaryGreen-100 text-primaryGreen-800">{selected.gallery_category}</span>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {selected.gallery_image.map((url, i) => (
-                  <img key={i} src={url} alt={`gambar-${i + 1}`} className="w-full h-40 object-cover rounded-md border border-gray-200" />
+                  <Image key={i} src={url} alt={`gambar-${i + 1}`} className="w-full h-40 object-cover rounded-md border border-gray-200" width={100} height={100} />
                 ))}
               </div>
               <p className="text-xs text-gray-500">

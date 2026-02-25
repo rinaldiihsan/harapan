@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import NewsForm from './NewsForm';
 import axiosAdmin from '@/lib/axiosAdmin'; // <-- import axiosAdmin
+import Image from 'next/image';
 
 interface News {
   id: number;
@@ -94,7 +95,6 @@ export default function NewsClient() {
               <TableHead className="text-black w-12">No</TableHead>
               <TableHead className="text-black">Judul</TableHead>
               <TableHead className="text-black">Gambar</TableHead>
-              <TableHead className="text-black">Tanggal</TableHead>
               <TableHead className="text-black text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -116,8 +116,7 @@ export default function NewsClient() {
                 <TableRow key={news.id}>
                   <TableCell className="text-black">{index + 1}</TableCell>
                   <TableCell className="text-black font-medium max-w-xs truncate">{news.news_title}</TableCell>
-                  <TableCell>{news.news_images.length > 0 && <img src={news.news_images[0]} alt={news.news_title} className="h-10 w-16 object-cover rounded" />}</TableCell>
-                  <TableCell className="text-black">{new Date(news.createdAt).toLocaleDateString('id-ID')}</TableCell>
+                  <TableCell>{news.news_images.length > 0 && <Image src={news.news_images[0]} alt={news.news_title} className="h-10 w-16 object-cover rounded" width={100} height={100} />}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => handlePreview(news)} className="border-gray-200 text-black hover:bg-gray-50">
@@ -149,7 +148,7 @@ export default function NewsClient() {
               {selected.news_images.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
                   {selected.news_images.map((url, i) => (
-                    <img key={i} src={url} alt={`gambar-${i + 1}`} className="h-48 w-full object-cover rounded-md border border-gray-200" />
+                    <Image key={i} src={url} alt={`gambar-${i + 1}`} className="h-48 w-full object-cover rounded-md border border-gray-200" width={100} height={100} />
                   ))}
                 </div>
               )}
