@@ -23,7 +23,8 @@ const locations = [
 
 const menuLinks = [
   { href: '/', label: 'Beranda' },
-  { href: '/tentang-kami', label: 'Tentang' },
+  { href: '/tentang-kami', label: 'Tentang Kami' },
+  { href: '/berita', label: 'Berita' },
   { href: '/galeri', label: 'Galeri' },
 ];
 
