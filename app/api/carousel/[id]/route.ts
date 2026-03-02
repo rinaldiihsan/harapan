@@ -4,6 +4,8 @@ import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
 
+export const dynamic = 'force-dynamic';
+
 // PUT update — protected
 async function updateHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
   const id = Number(params.id);
