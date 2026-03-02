@@ -63,3 +63,29 @@ model KetuaYayasan {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model ProgramUnggulan {
+  id        Int      @id @default(autoincrement())
+  name      String
+  photo     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Founder {
+  id        Int      @id @default(autoincrement())
+  name      String
+  photo     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StrukturOrganisasi {
+  id          Int      @id @default(autoincrement())
+  image       String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
