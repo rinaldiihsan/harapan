@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Instagram, Facebook, Youtube, Mail, Phone, MessageCircle, MapPin } from 'lucide-react';
+import { TikTokIcon } from '../TikTokIcon';
 
 const copyRight = new Date().getFullYear();
 
@@ -45,8 +46,8 @@ const socialLinks = [
     label: 'Youtube',
   },
   {
-    href: '',
-    icon: '',
+    href: 'https://www.tiktok.com/@yaspendhar',
+    icon: <TikTokIcon size={24} color="#047038" />,
     label: 'TikTok',
   },
 ];
