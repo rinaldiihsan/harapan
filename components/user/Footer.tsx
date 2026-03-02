@@ -44,6 +44,11 @@ const socialLinks = [
     icon: <Youtube size={24} color="#047038" />,
     label: 'Youtube',
   },
+  {
+    href: '',
+    icon: '',
+    label: 'TikTok',
+  },
 ];
 
 const contacts = [
@@ -136,7 +141,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <p className="font-medium text-white text-center text-sm md:text-base">&copy; {copyRight} Yayasan Pendidikan Harapan Medan. All Rights Reserved.</p>
+      <p className="font-medium text-white text-center text-sm md:text-base">&copy; {copyRight} Yayasan Pendidikan Harapan. All Rights Reserved.</p>
     </footer>
   );
 }
