@@ -3,6 +3,7 @@ import { getSchoolContent } from '@/lib/queries/school';
 import PendidikanTemplate from '../../_components/pendidikan/PendidikanTemplate';
 import type { PendidikanData } from '../../_components/pendidikan/PendidikanTemplate';
 
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'SD Harapan 3' };
 export const revalidate = 60;
 
