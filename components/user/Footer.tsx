@@ -95,9 +95,9 @@ export default function Footer() {
         {/* Menu & Lokasi & Kontak */}
         <div className="flex flex-col lg:flex-row gap-y-10 gap-x-0 lg:gap-y-0 lg:gap-x-16 w-full lg:w-[70%]">
           {/* Plakat */}
-          <div className="w-full lg:w-[390px]">
+          {/* <div className="w-full lg:w-[390px]">
             <img src="/plakat.png" alt="plakat" className="w-full lg:w-[390px] h-auto object-contain" />
-          </div>
+          </div> */}
 
           {/* Menu */}
           <div className="flex flex-col gap-y-4">
