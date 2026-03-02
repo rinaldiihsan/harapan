@@ -50,13 +50,13 @@ export const withAuth = (handler: RouteHandler): RouteHandler => {
 export const generateAccessToken = (payload: JwtPayload): string => {
   return jwt.sign(payload, process.env.PRIVATE_KEY!, {
     algorithm: 'HS256',
-    expiresIn: '15m',
+    expiresIn: '1h',
   });
 };
 
 export const generateRefreshToken = (payload: JwtPayload): string => {
   return jwt.sign(payload, process.env.REFRESH_KEY!, {
     algorithm: 'HS256',
-    expiresIn: '1h',
+    expiresIn: '7d',
   });
 };
