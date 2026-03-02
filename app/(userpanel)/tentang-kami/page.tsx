@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import ParallaxHero from '../_components/tentang/ParallaxHero';
 import ImageModal from '../_components/tentang/ImageModal';
-import { founder } from '@/utils/founders';
+import FounderSection from '../_components/tentang/FounderSection';
+import StrukturSection from '../_components/tentang/StrukturSection';
 
 export const metadata: Metadata = {
   title: 'Tentang Kami',
@@ -20,7 +22,7 @@ export default function TentangKamiPage() {
             {/* Gambar */}
             <div className="w-full lg:w-1/2 lg:sticky lg:top-24">
               <div className="relative overflow-hidden rounded-2xl shadow-xl h-72 sm:h-96 lg:h-[36rem]">
-                <img src="/profile-yayasan.jpg" alt="Profile Yayasan" className="object-cover w-full h-full" loading="lazy" />
+                <Image src="/profile-yayasan.jpg" alt="Profile Yayasan" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" priority />
                 <div className="absolute inset-0 bg-gradient-to-t from-primaryGreen-700 to-transparent opacity-70" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
                   <h3 className="text-xl sm:text-2xl font-bold text-white">Yayasan Pendidikan Harapan</h3>
@@ -32,10 +34,8 @@ export default function TentangKamiPage() {
             {/* Timeline */}
             <div className="w-full lg:w-1/2">
               <div className="relative flex flex-col gap-y-0">
-                {/* Garis vertikal */}
                 <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primaryGreen-200" />
 
-                {/* Item 1 */}
                 <div className="relative flex gap-x-6 pb-10">
                   <div className="flex-none w-8 h-8 rounded-full bg-primaryGreen-700 border-4 border-white shadow flex items-center justify-center z-10">
                     <div className="w-2 h-2 rounded-full bg-white" />
@@ -50,7 +50,6 @@ export default function TentangKamiPage() {
                   </div>
                 </div>
 
-                {/* Item 2 */}
                 <div className="relative flex gap-x-6 pb-10">
                   <div className="flex-none w-8 h-8 rounded-full bg-primaryGreen-700 border-4 border-white shadow flex items-center justify-center z-10">
                     <div className="w-2 h-2 rounded-full bg-white" />
@@ -62,7 +61,6 @@ export default function TentangKamiPage() {
                   </div>
                 </div>
 
-                {/* Item 3 */}
                 <div className="relative flex gap-x-6 pb-10">
                   <div className="flex-none w-8 h-8 rounded-full bg-primaryGreen-700 border-4 border-white shadow flex items-center justify-center z-10">
                     <div className="w-2 h-2 rounded-full bg-white" />
@@ -74,7 +72,6 @@ export default function TentangKamiPage() {
                   </div>
                 </div>
 
-                {/* Item 4 */}
                 <div className="relative flex gap-x-6">
                   <div className="flex-none w-8 h-8 rounded-full bg-primaryGreen-700 border-4 border-white shadow flex items-center justify-center z-10">
                     <div className="w-2 h-2 rounded-full bg-white" />
@@ -109,55 +106,41 @@ export default function TentangKamiPage() {
             <div className="bg-primaryYellow-700 p-6 rounded-2xl shadow-md h-full">
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-4 pb-3 border-b border-black/10">Misi</h3>
               <ul className="space-y-2 text-sm sm:text-base text-black">
-                <li className="flex gap-x-2">
-                  <span className="mt-1 flex-none w-1.5 h-1.5 rounded-full bg-black/50" />
-                  Menyelenggarakan pendidikan berkualitas yang mengintegrasikan nilai-nilai keimanan, keilmuan, dan pengamalan.
-                </li>
-                <li className="flex gap-x-2">
-                  <span className="mt-1 flex-none w-1.5 h-1.5 rounded-full bg-black/50" />
-                  Mengembangkan potensi peserta didik secara holistik melalui program akademik dan non-akademik yang inovatif.
-                </li>
-                <li className="flex gap-x-2">
-                  <span className="mt-1 flex-none w-1.5 h-1.5 rounded-full bg-black/50" />
-                  Membangun kerjasama dengan berbagai pihak untuk meningkatkan mutu pendidikan dan relevansi lulusan.
-                </li>
-                <li className="flex gap-x-2">
-                  <span className="mt-1 flex-none w-1.5 h-1.5 rounded-full bg-black/50" />
-                  Menciptakan lingkungan belajar yang kondusif, modern, dan berbasis teknologi.
-                </li>
-                <li className="flex gap-x-2">
-                  <span className="mt-1 flex-none w-1.5 h-1.5 rounded-full bg-black/50" />
-                  Menumbuhkan jiwa kepemimpinan dan kewirausahaan pada peserta didik.
-                </li>
+                {[
+                  'Menyelenggarakan pendidikan berkualitas yang mengintegrasikan nilai-nilai keimanan, keilmuan, dan pengamalan.',
+                  'Mengembangkan potensi peserta didik secara holistik melalui program akademik dan non-akademik yang inovatif.',
+                  'Membangun kerjasama dengan berbagai pihak untuk meningkatkan mutu pendidikan dan relevansi lulusan.',
+                  'Menciptakan lingkungan belajar yang kondusif, inklusif, dan berwawasan global.',
+                ].map((item) => (
+                  <li key={item} className="flex gap-x-2">
+                    <span className="mt-1 flex-none w-1.5 h-1.5 rounded-full bg-black/50" />
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
             <div className="bg-white p-6 rounded-2xl shadow-md h-full">
               <h3 className="text-xl sm:text-2xl font-bold text-primaryGreen-700 mb-4 pb-3 border-b border-gray-100">Tujuan</h3>
-              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                Menghasilkan lulusan yang unggul dalam prestasi akademik dan non-akademik, serta memiliki karakter berakhlak mulia, mandiri, dan bertanggung jawab. Kami berupaya mengembangkan model pendidikan yang mengintegrasikan ilmu
-                pengetahuan, teknologi, dan nilai-nilai keagamaan, sekaligus menjadi pusat unggulan dalam pengembangan metode pembelajaran inovatif.
-              </p>
+              <ul className="space-y-2 text-sm sm:text-base text-gray-700">
+                {[
+                  'Menghasilkan lulusan yang berakhlak mulia, berpengetahuan luas, dan terampil.',
+                  'Meningkatkan kualitas pendidikan secara berkelanjutan melalui inovasi dan pengembangan.',
+                  'Memberikan kontribusi nyata bagi kemajuan masyarakat dan bangsa Indonesia.',
+                  'Mengembangkan institusi pendidikan yang mandiri, akuntabel, dan berdaya saing tinggi.',
+                ].map((item) => (
+                  <li key={item} className="flex gap-x-2">
+                    <span className="mt-1 flex-none w-1.5 h-1.5 rounded-full bg-primaryGreen-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Pendiri */}
-      <section className="bg-gray-100 py-12 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-14 text-black">Sebelas Pendiri Yayasan</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
-            {founder.map((f) => (
-              <div key={f.name} className="flex flex-col items-center gap-y-3">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-primaryGreen-700 shadow-lg">
-                  <img src={f.photo} alt={f.name} className="object-cover w-full h-full" loading="lazy" />
-                </div>
-                <p className="text-sm sm:text-base font-semibold text-center text-primaryGreen-700">{f.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Pendiri — fetch dari API */}
+      <FounderSection />
 
       {/* Institusi Pendidikan */}
       <section className="bg-white py-12 md:py-20">
@@ -201,42 +184,8 @@ export default function TentangKamiPage() {
         </div>
       </section>
 
-      {/* Struktur Yayasan */}
-      <section className="bg-white py-8 sm:py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 md:mb-16 text-black">Struktur Yayasan</h1>
-          <div className="flex flex-col lg:flex-row gap-8 md:gap-12 items-stretch">
-            <div className="w-full lg:w-1/2 flex flex-col gap-6">
-              <div className="bg-primaryGreen-700 p-4 sm:p-6 rounded-lg shadow-md text-white">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">Organisasi Kami</h2>
-                <p className="text-sm sm:text-base leading-relaxed">
-                  Struktur organisasi Yayasan Pendidikan Harapan Medan dirancang untuk memastikan efisiensi dan efektivitas dalam menjalankan misi pendidikan kami. Dipimpin oleh Dewan Pembina yang berpengalaman, yayasan ini memiliki jajaran
-                  pengurus yang kompeten dan berdedikasi.
-                </p>
-              </div>
-              <div className="bg-primaryYellow-700 p-4 sm:p-6 rounded-lg shadow-md">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-black mb-3 sm:mb-4">Komponen Utama</h2>
-                <ul className="list-disc list-inside space-y-2 text-sm sm:text-base text-black">
-                  <li>Dewan Pembina: Memberikan arahan strategis</li>
-                  <li>Dewan Pengawas: Memastikan akuntabilitas dan transparansi</li>
-                  <li>Dewan Pengurus: Menjalankan operasional yayasan</li>
-                </ul>
-              </div>
-              <div className="bg-gray-100 p-4 sm:p-6 rounded-lg shadow-md">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primaryGreen-700 mb-3 sm:mb-4">Komitmen Kami</h2>
-                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                  Setiap bagian dalam struktur organisasi kami memiliki peran dan tanggung jawab yang jelas, mulai dari pengembangan kurikulum, manajemen sumber daya, hingga hubungan masyarakat.
-                </p>
-              </div>
-            </div>
-            <div className="w-full max-w-2xl mx-auto">
-              <div className="w-full aspect-[3/4]">
-                <ImageModal imageUrl="/struktur-organisasi.png" altText="Struktur Organisasi Yayasan" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Struktur Yayasan — fetch dari API */}
+      <StrukturSection />
 
       {/* Mars Harapan */}
       <section className="bg-gray-100 py-8 sm:py-12 md:py-16">

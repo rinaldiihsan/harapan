@@ -72,10 +72,11 @@ const contacts = [
 
 export default function Footer() {
   return (
-    <footer className="bg-primaryGreen-700 py-14 px-5 flex flex-col gap-y-16 justify-center items-center overflow-x-hidden">
-      <div className="flex flex-col lg:flex-row w-full max-w-[100rem] justify-between gap-y-8 lg:gap-y-0 lg:gap-x-48">
+    <footer className="bg-primaryGreen-700 py-14 px-5 flex flex-col gap-y-16 items-center overflow-x-hidden">
+      {/* Container utama dibuat agar rata tengah dengan gap yang konsisten */}
+      <div className="flex flex-col lg:flex-row w-full max-w-[100rem] justify-center items-start gap-x-12 xl:gap-x-24 gap-y-12">
         {/* Desc */}
-        <div className="flex flex-col gap-y-6 w-full lg:w-[20%]">
+        <div className="flex flex-col gap-y-6 w-full lg:w-[25%]">
           <div className="flex flex-row gap-x-3 items-center">
             <img src="/logo.png" alt="Logo" className="w-14 h-14" />
             <h1 className="text-white font-bold text-2xl uppercase">Yaspendhar</h1>
@@ -85,20 +86,15 @@ export default function Footer() {
           </p>
           <div className="flex gap-x-4">
             {socialLinks.map((social) => (
-              <Link key={social.label} href={social.href} target="_blank" rel="noopener noreferrer" className="p-3 bg-white rounded-full hover:bg-primaryGreen-100 transition-colors" aria-label={social.label}>
+              <Link key={social.label} href={social.href} className="p-3 bg-white rounded-full hover:bg-primaryGreen-100 transition-colors">
                 {social.icon}
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Menu & Lokasi & Kontak */}
-        <div className="flex flex-col lg:flex-row gap-y-10 gap-x-0 lg:gap-y-0 lg:gap-x-16 w-full lg:w-[70%]">
-          {/* Plakat */}
-          {/* <div className="w-full lg:w-[390px]">
-            <img src="/plakat.png" alt="plakat" className="w-full lg:w-[390px] h-auto object-contain" />
-          </div> */}
-
+        {/* Group Menu, Lokasi, Kontak - Kita buat satu flex container */}
+        <div className="flex flex-col md:flex-row gap-y-10 gap-x-12 lg:gap-x-16">
           {/* Menu */}
           <div className="flex flex-col gap-y-4">
             <h2 className="text-white font-bold text-lg">Menu</h2>
@@ -112,16 +108,16 @@ export default function Footer() {
           </div>
 
           {/* Lokasi */}
-          <div className="flex flex-col gap-y-4 w-full lg:w-2/5">
+          <div className="flex flex-col gap-y-4 max-w-[300px]">
             <h2 className="text-white font-bold text-lg">Kunjungi Kami</h2>
             <div className="flex flex-col gap-y-4">
               {locations.map((loc) => (
-                <Link key={loc.label} href={loc.href} target="_blank" rel="noopener noreferrer" className="flex flex-col gap-y-1 group">
+                <Link key={loc.label} href={loc.href} className="flex flex-col gap-y-1 group">
                   <div className="flex gap-x-2 items-center">
                     <MapPin size={20} color="#fff" />
                     <p className="text-white font-bold text-sm">{loc.label}</p>
                   </div>
-                  <p className="text-white/80 text-sm text-justify group-hover:text-white transition-colors">{loc.address}</p>
+                  <p className="text-white/80 text-sm group-hover:text-white transition-colors">{loc.address}</p>
                 </Link>
               ))}
             </div>
@@ -130,19 +126,41 @@ export default function Footer() {
           {/* Kontak */}
           <div className="flex flex-col gap-y-6">
             <h2 className="text-white font-bold text-lg">Hubungi Kami</h2>
-            <div className="flex flex-col gap-y-4">
-              {contacts.map((contact) => (
-                <Link key={contact.label} href={contact.href} className="flex gap-x-4 items-center group">
-                  {contact.icon}
-                  <span className="text-white text-sm group-hover:text-primaryYellow-400 transition-colors">{contact.label}</span>
-                </Link>
+            <div className="flex flex-col gap-y-6">
+              {/* Kontak per Kampus */}
+              {[
+                { label: 'Kampus 1', phone: '081297974141' },
+                { label: 'Kampus 2', phone: '081297974242' },
+                { label: 'Kampus 3', phone: '08116087510' },
+              ].map((kampus) => (
+                <div key={kampus.label} className="flex flex-col gap-y-2">
+                  <p className="text-white font-bold text-sm">{kampus.label}</p>
+                  <div className="flex gap-x-4">
+                    {/* Ikon Telepon */}
+                    <a href={`tel:${kampus.phone}`} className="flex items-center gap-x-2 text-white/80 hover:text-white transition-colors">
+                      <Phone size={18} />
+                      <span className="text-sm">{kampus.phone}</span>
+                    </a>
+                    {/* Ikon WhatsApp */}
+                    <a href={`https://wa.me/62${kampus.phone.substring(1)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-x-2 text-white/80 hover:text-white transition-colors">
+                      <MessageCircle size={18} />
+                      <span className="text-sm">WhatsApp {kampus.label}</span>
+                    </a>
+                  </div>
+                </div>
               ))}
+
+              {/* Email */}
+              <a href="mailto:info@harapan.ac.id" className="flex items-center gap-x-2 text-white/80 hover:text-white transition-colors">
+                <Mail size={18} />
+                <span className="text-sm">info@harapan.ac.id</span>
+              </a>
             </div>
           </div>
         </div>
       </div>
 
-      <p className="font-medium text-white text-center text-sm md:text-base">&copy; {copyRight} Yayasan Pendidikan Harapan. All Rights Reserved.</p>
+      <p className="font-medium text-white text-center text-sm md:text-base">&copy; {copyRight} Yayasan Pendidikan Harapan.</p>
     </footer>
   );
 }

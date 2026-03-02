@@ -89,3 +89,28 @@ model StrukturOrganisasi {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+enum SchoolUnit {
+  SD1
+  SD2
+  SD3
+  SMP1
+  SMP2
+  SMP3
+  SMA1
+  SMA3
+}
+
+model SchoolContent {
+  id              Int        @id @default(autoincrement())
+  school          SchoolUnit @unique
+  kepalaSekolah   String?
+  visi            String?
+  misi            String[]
+  programUnggulan String[]
+  fasilitas       String[]
+  ekstrakurikuler String[]
+  kegiatanSekolah String[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
