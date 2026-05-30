@@ -1,3 +1,5 @@
+// app/api/ketuayayasan/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
