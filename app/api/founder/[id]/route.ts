@@ -1,8 +1,11 @@
+// app/api/founder/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
+import { corsHeaders, handleOptions } from '@/lib/cors';
 
 const selectFields = {
   id: true,
@@ -11,10 +14,17 @@ const selectFields = {
   order: true,
 };
 
+export async function OPTIONS(req: Request) {
+  return handleOptions(req);
+}
+
 // PUT update — protected
 async function updateHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
-  if (isNaN(id)) return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+  if (isNaN(id)) {
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
+  }
 
   try {
     const existing = await prisma.founder.findUnique({
@@ -22,7 +32,9 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
       select: { id: true, name: true, photo: true, order: true },
     });
 
-    if (!existing) return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404 });
+    if (!existing) {
+      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404, headers: corsHeaders(origin) });
+    }
 
     const { fields, files } = await parseFormData(req);
     const { name, order } = fields;
@@ -45,16 +57,19 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
       select: selectFields,
     });
 
-    return NextResponse.json({ message: 'Berhasil mengupdate pendiri', data: updated }, { status: 200 });
+    return NextResponse.json({ message: 'Berhasil mengupdate pendiri', data: updated }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
 // DELETE — protected
 async function deleteHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
-  if (isNaN(id)) return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+  if (isNaN(id)) {
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
+  }
 
   try {
     const existing = await prisma.founder.findUnique({
@@ -62,14 +77,16 @@ async function deleteHandler(req: NextRequest, { params }: { params: Record<stri
       select: { id: true, photo: true },
     });
 
-    if (!existing) return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404 });
+    if (!existing) {
+      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404, headers: corsHeaders(origin) });
+    }
 
     await deleteFromCloudinary(existing.photo);
     await prisma.founder.delete({ where: { id } });
 
-    return NextResponse.json({ message: 'Berhasil menghapus pendiri' }, { status: 200 });
+    return NextResponse.json({ message: 'Berhasil menghapus pendiri' }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 

@@ -1,17 +1,25 @@
+// app/api/carousel/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
+import { corsHeaders, handleOptions } from '@/lib/cors';
 
 export const dynamic = 'force-dynamic';
 
+export async function OPTIONS(req: Request) {
+  return handleOptions(req);
+}
+
 // PUT update — protected
 async function updateHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -26,7 +34,7 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
     });
 
     if (!carousel) {
-      return NextResponse.json({ message: 'Carousel not found' }, { status: 404 });
+      return NextResponse.json({ message: 'Carousel not found' }, { status: 404, headers: corsHeaders(origin) });
     }
 
     const { fields, files } = await parseFormData(req);
@@ -36,8 +44,6 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
     let imageUrl = carousel.carousel_image;
 
     if (imageFiles.length > 0) {
-      // Hapus & upload paralel tidak bisa karena upload butuh hasil delete dulu
-      // Tapi delete & upload tetap dijalankan sequential agar tidak orphan image
       await deleteFromCloudinary(carousel.carousel_image);
       imageUrl = await uploadToCloudinary(imageFiles[0].buffer, 'carousel', imageFiles[0].filename);
     }
@@ -57,18 +63,19 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
       },
     });
 
-    return NextResponse.json({ message: 'Carousel updated successfully', data: updated }, { status: 200 });
+    return NextResponse.json({ message: 'Carousel updated successfully', data: updated }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
 // DELETE — protected
 async function deleteHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -78,17 +85,15 @@ async function deleteHandler(req: NextRequest, { params }: { params: Record<stri
     });
 
     if (!carousel) {
-      return NextResponse.json({ message: 'Carousel not found' }, { status: 404 });
+      return NextResponse.json({ message: 'Carousel not found' }, { status: 404, headers: corsHeaders(origin) });
     }
 
-    // Hapus dari Cloudinary dan DB secara paralel tidak aman —
-    // jalankan delete Cloudinary dulu, baru delete DB
     await deleteFromCloudinary(carousel.carousel_image);
     await prisma.carousel.delete({ where: { id } });
 
-    return NextResponse.json({ message: 'Carousel deleted successfully' }, { status: 200 });
+    return NextResponse.json({ message: 'Carousel deleted successfully' }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 

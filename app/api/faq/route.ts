@@ -1,12 +1,19 @@
+// app/api/faq/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
+import { corsHeaders, handleOptions } from '@/lib/cors';
 
-// Cache 60 detik — data FAQ jarang berubah
 export const revalidate = 60;
 
+export async function OPTIONS(req: Request) {
+  return handleOptions(req);
+}
+
 // GET all faq — public
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const origin = req.headers.get('origin');
   try {
     const faq = await prisma.faq.findMany({
       orderBy: { createdAt: 'desc' },
@@ -17,30 +24,30 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ data: faq }, { status: 200 });
+    return NextResponse.json({ data: faq }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
 // POST create faq — protected
 async function createHandler(req: NextRequest) {
+  const origin = req.headers.get('origin');
   try {
     const { faq_title, faq_desc } = await req.json();
 
     if (!faq_title || !faq_desc) {
-      return NextResponse.json({ message: 'Title and description are required' }, { status: 400 });
+      return NextResponse.json({ message: 'Title and description are required' }, { status: 400, headers: corsHeaders(origin) });
     }
 
-    // Cek count dan duplikat secara paralel — lebih efisien
     const [faqCount, existing] = await Promise.all([prisma.faq.count(), prisma.faq.findUnique({ where: { faq_title } })]);
 
     if (faqCount >= 6) {
-      return NextResponse.json({ message: 'Maximum number of FAQs reached' }, { status: 400 });
+      return NextResponse.json({ message: 'Maximum number of FAQs reached' }, { status: 400, headers: corsHeaders(origin) });
     }
 
     if (existing) {
-      return NextResponse.json({ message: 'Title already exists' }, { status: 400 });
+      return NextResponse.json({ message: 'Title already exists' }, { status: 400, headers: corsHeaders(origin) });
     }
 
     const faq = await prisma.faq.create({
@@ -52,9 +59,9 @@ async function createHandler(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ message: 'FAQ created successfully', data: faq }, { status: 201 });
+    return NextResponse.json({ message: 'FAQ created successfully', data: faq }, { status: 201, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
