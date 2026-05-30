@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
-const ALLOWED_ORIGINS = ['https://harapan.ac.id', 'https://www.harapan.ac.id', 'http://localhost:3000'];
+const ALLOWED_ORIGINS = ['https://harapan.ac.id', 'https://www.harapan.ac.id', 'http://localhost:3000', 'http://localhost:3001'];
 
 export function corsHeaders(origin: string | null): Record<string, string> {
+  // Jika origin tidak dikenal atau null, tetap set ke origin pertama
+  // agar tidak pernah return wildcard '*' yang incompatible dengan credentials
   const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
 
   return {
