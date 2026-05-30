@@ -1,9 +1,17 @@
+// app/api/auth/logout/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { corsHeaders, handleOptions } from '@/lib/cors';
 
 export const dynamic = 'force-dynamic';
 
+export async function OPTIONS(req: Request) {
+  return handleOptions(req);
+}
+
 export async function DELETE(req: NextRequest) {
+  const origin = req.headers.get('origin');
+
   try {
     const refreshToken = req.cookies.get('refreshToken')?.value;
 
@@ -17,18 +25,19 @@ export async function DELETE(req: NextRequest) {
       }
     }
 
-    const response = NextResponse.json({ message: 'Logout successful' }, { status: 200 });
+    const response = NextResponse.json({ message: 'Logout successful' }, { status: 200, headers: corsHeaders(origin) });
 
+    // Harus sama persis dengan waktu set agar browser hapus cookie
     response.cookies.set('refreshToken', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: 0,
       path: '/',
     });
 
     return response;
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
