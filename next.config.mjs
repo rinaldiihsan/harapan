@@ -1,3 +1,5 @@
+// next.config.mjs
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config) => {
     config.module.rules.push({
@@ -8,7 +10,7 @@ const nextConfig = {
   },
 
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'], 
+    serverComponentsExternalPackages: ['@prisma/client'],
   },
 
   typescript: {
@@ -33,19 +35,7 @@ const nextConfig = {
       },
     ],
   },
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
-          { key: 'Access-Control-Max-Age', value: '86400' },
-        ],
-      },
-    ];
-  },
+  // async headers() dihapus dari sini
 };
 
 export default nextConfig;
