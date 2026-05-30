@@ -6,13 +6,19 @@ import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
 import { generateSlug } from '@/lib/slug';
+import { corsHeaders, handleOptions } from '@/lib/cors';
 
-// GET by id — public, ambil semua field termasuk content untuk detail page
+export async function OPTIONS(req: Request) {
+  return handleOptions(req);
+}
+
+// GET by id — public
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -29,21 +35,22 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     });
 
     if (!news) {
-      return NextResponse.json({ message: 'News not found' }, { status: 404 });
+      return NextResponse.json({ message: 'News not found' }, { status: 404, headers: corsHeaders(origin) });
     }
 
-    return NextResponse.json({ data: news }, { status: 200 });
+    return NextResponse.json({ data: news }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
 // PUT update — protected
 async function updateHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -59,7 +66,7 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
     });
 
     if (!news) {
-      return NextResponse.json({ message: 'News not found' }, { status: 404 });
+      return NextResponse.json({ message: 'News not found' }, { status: 404, headers: corsHeaders(origin) });
     }
 
     const { fields, files } = await parseFormData(req);
@@ -70,9 +77,8 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
 
     if (imageFiles.length > 0) {
       if (imageFiles.length > 5) {
-        return NextResponse.json({ message: 'Maximum 5 images allowed' }, { status: 400 });
+        return NextResponse.json({ message: 'Maximum 5 images allowed' }, { status: 400, headers: corsHeaders(origin) });
       }
-      // Hapus lama dulu secara paralel, baru upload baru
       await Promise.all(news.news_images.map((url) => deleteFromCloudinary(url)));
       imageUrls = await Promise.all(imageFiles.map((file) => uploadToCloudinary(file.buffer, 'news', file.filename)));
     }
@@ -97,18 +103,19 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
       },
     });
 
-    return NextResponse.json({ message: 'News updated successfully', data: updated }, { status: 200 });
+    return NextResponse.json({ message: 'News updated successfully', data: updated }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
 // DELETE — protected
 async function deleteHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -118,16 +125,15 @@ async function deleteHandler(req: NextRequest, { params }: { params: Record<stri
     });
 
     if (!news) {
-      return NextResponse.json({ message: 'News not found' }, { status: 404 });
+      return NextResponse.json({ message: 'News not found' }, { status: 404, headers: corsHeaders(origin) });
     }
 
-    // Hapus semua gambar dari Cloudinary secara paralel, baru hapus dari DB
     await Promise.all(news.news_images.map((url) => deleteFromCloudinary(url)));
     await prisma.news.delete({ where: { id } });
 
-    return NextResponse.json({ message: 'News deleted successfully' }, { status: 200 });
+    return NextResponse.json({ message: 'News deleted successfully' }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 

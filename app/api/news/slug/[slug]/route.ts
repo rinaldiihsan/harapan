@@ -2,13 +2,19 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { corsHeaders, handleOptions } from '@/lib/cors';
 
-// Cache per artikel — konten berita jarang berubah setelah publish
 export const revalidate = 60;
 
+export async function OPTIONS(req: Request) {
+  return handleOptions(req);
+}
+
 export async function GET(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
+
   if (!params.slug) {
-    return NextResponse.json({ message: 'Slug is required' }, { status: 400 });
+    return NextResponse.json({ message: 'Slug is required' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -25,11 +31,11 @@ export async function GET(req: NextRequest, { params }: { params: Record<string,
     });
 
     if (!news) {
-      return NextResponse.json({ message: 'News not found' }, { status: 404 });
+      return NextResponse.json({ message: 'News not found' }, { status: 404, headers: corsHeaders(origin) });
     }
 
-    return NextResponse.json({ data: news }, { status: 200 });
+    return NextResponse.json({ data: news }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }

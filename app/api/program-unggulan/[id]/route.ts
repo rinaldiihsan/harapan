@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
 import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
 import { parseFormData } from '@/lib/parseForm';
+import { corsHeaders, handleOptions } from '@/lib/cors';
 
 const selectFields = {
   id: true,
@@ -13,12 +14,17 @@ const selectFields = {
   order: true,
 };
 
+export async function OPTIONS(req: Request) {
+  return handleOptions(req);
+}
+
 // PUT update — protected
 async function updateHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -28,7 +34,7 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
     });
 
     if (!existing) {
-      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404 });
+      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404, headers: corsHeaders(origin) });
     }
 
     const { fields, files } = await parseFormData(req);
@@ -38,7 +44,6 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
     let photo = existing.photo;
 
     if (imageFiles.length > 0) {
-      // Hapus foto lama dulu, baru upload baru
       await deleteFromCloudinary(existing.photo);
       photo = await uploadToCloudinary(imageFiles[0].buffer, 'program-unggulan', imageFiles[0].filename);
     }
@@ -53,18 +58,19 @@ async function updateHandler(req: NextRequest, { params }: { params: Record<stri
       select: selectFields,
     });
 
-    return NextResponse.json({ message: 'Berhasil mengupdate program unggulan', data: updated }, { status: 200 });
+    return NextResponse.json({ message: 'Berhasil mengupdate program unggulan', data: updated }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ message: error.message ?? 'Internal Server Error' }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
 // DELETE — protected
 async function deleteHandler(req: NextRequest, { params }: { params: Record<string, string> }) {
+  const origin = req.headers.get('origin');
   const id = Number(params.id);
 
   if (isNaN(id)) {
-    return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ message: 'Invalid ID' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   try {
@@ -74,16 +80,15 @@ async function deleteHandler(req: NextRequest, { params }: { params: Record<stri
     });
 
     if (!existing) {
-      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404 });
+      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404, headers: corsHeaders(origin) });
     }
 
-    // Hapus foto dari Cloudinary dulu, baru hapus dari DB
     await deleteFromCloudinary(existing.photo);
     await prisma.programUnggulan.delete({ where: { id } });
 
-    return NextResponse.json({ message: 'Berhasil menghapus program unggulan' }, { status: 200 });
+    return NextResponse.json({ message: 'Berhasil menghapus program unggulan' }, { status: 200, headers: corsHeaders(origin) });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500, headers: corsHeaders(origin) });
   }
 }
 
